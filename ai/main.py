@@ -55,6 +55,25 @@ class Game:
 		back_mask = pygame.mask.from_surface(tracks_img, 50)
 		back_rect = tracks_img.get_rect()
 		ppu = 10
+		gates =  []
+		gates.append([[800, 650], [800, 770]])
+		gates.append([[600, 640], [600, 770]])
+		gates.append([[410, 620], [400, 750]])
+		gates.append([[250, 580], [200, 730]])
+		gates.append([[50, 450], [200, 450]])
+		gates.append([[90, 250], [250, 270]])
+		gates.append([[300, 60], [320, 200]])
+		gates.append([[550, 60], [530, 200]])
+		gates.append([[770, 240], [700, 370]])
+		gates.append([[950, 320], [970, 450]])
+		gates.append([[1100, 180], [1250, 270]])
+		gates.append([[1400, 50], [1370, 180]])
+		gates.append([[1490, 250], [1630, 250]])
+		gates.append([[1460, 450], [1630, 450]])
+		gates.append([[1400, 610], [1530, 690]])
+		gates.append([[1300, 650], [1300, 770]])
+		gates.append([[1050, 650], [1050, 770]])
+
 
 		while not self.exit:
 			dt = self.clock.get_time() / 1000
@@ -110,6 +129,10 @@ class Game:
 			self.screen.fill((255, 255, 255))
 			self.screen.blit(tracks_img,(0, 0))
 			self.screen.blit(car.image, car.rect)
+
+			for i in range(len(gates)):
+				print(gates[i])
+				pygame.draw.line(self.screen, (255, 0, 0), gates[i][0], gates[i][1])
 
 			for point in car.mask.outline(8):
 				pygame.draw.rect(self.screen, (255, 0, 0), (point+Vector2(car.rect.topleft), (2, 2)))
