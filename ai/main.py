@@ -36,6 +36,16 @@ class Car:
 		self.mask = pygame.mask.from_surface(self.image, 50)
 
 
+class Gate:
+	def __init__(self, x, y, rotation):
+		self.x = x
+		self.y = y
+		self.rotation = rotation
+		self.orig_image = pygame.transform.scale(pygame.image.load(os.path.join("imgs","gate.png")).convert_alpha(), (150, 2))
+		self.image = pygame.transform.rotate(self.orig_image, self.rotation)
+		self.rect = self.image.get_rect(center=(x, y))
+		self.mask = pygame.mask.from_surface(self.image, 50)
+
 class Game:
 	def __init__(self):
 		pygame.init()
@@ -49,31 +59,33 @@ class Game:
 
 	def run(self):
 		current_dir = os.path.dirname(os.path.abspath(__file__))
-		car_image = pygame.transform.scale(pygame.image.load(os.path.join(current_dir, "car.png")).convert_alpha(), (40, 20))
-		tracks_img = pygame.transform.scale(pygame.image.load(os.path.join("./","tracks1.png")).convert_alpha(), (1700, 800))
+		car_image = pygame.transform.scale(pygame.image.load(os.path.join("imgs", "car.png")).convert_alpha(), (40, 20))
+		tracks_img = pygame.transform.scale(pygame.image.load(os.path.join("imgs","tracks1.png")).convert_alpha(), (1700, 800))
 		car = Car(850, 700, car_image)
 		back_mask = pygame.mask.from_surface(tracks_img, 50)
 		back_rect = tracks_img.get_rect()
 		ppu = 10
+		STAT_FONT = pygame.font.SysFont("comicsans", 50)
+		lastPastedGate = 0
 		gates =  []
-		gates.append([[800, 650], [800, 770]])
-		gates.append([[600, 640], [600, 770]])
-		gates.append([[410, 620], [400, 750]])
-		gates.append([[250, 580], [200, 730]])
-		gates.append([[50, 450], [200, 450]])
-		gates.append([[90, 250], [250, 270]])
-		gates.append([[300, 60], [320, 200]])
-		gates.append([[550, 60], [530, 200]])
-		gates.append([[770, 240], [700, 370]])
-		gates.append([[950, 320], [970, 450]])
-		gates.append([[1100, 180], [1250, 270]])
-		gates.append([[1400, 50], [1370, 180]])
-		gates.append([[1490, 250], [1630, 250]])
-		gates.append([[1460, 450], [1630, 450]])
-		gates.append([[1400, 610], [1530, 690]])
-		gates.append([[1300, 650], [1300, 770]])
-		gates.append([[1050, 650], [1050, 770]])
+		gates.append([[630, 700], [80]])
+		gates.append([[400, 680], [70]])
+		gates.append([[120, 500], [0]])
+		gates.append([[140, 400], [0]])
+		gates.append([[170, 250], [350]])
+		gates.append([[300, 130], [300]])
+		gates.append([[550, 120], [240]])
+		gates.append([[770, 340], [225]])
+		gates.append([[950, 380], [280]])
+		gates.append([[1160, 230], [320]])
+		gates.append([[1400, 120], [250]])
+		gates.append([[1560, 250], [0]])
+		gates.append([[1540, 450], [350]])
+		gates.append([[1450, 670], [320]])
+		gates.append([[1250, 700], [90]])
+		gates.append([[1000, 720], [90]])
 
+		gate = Gate(gates[lastPastedGate][0][0], gates[lastPastedGate][0][1], gates[lastPastedGate][1][0])
 
 		while not self.exit:
 			dt = self.clock.get_time() / 1000
@@ -121,27 +133,40 @@ class Game:
 			offset_x = car.rect[0] - back_rect[0]
 			offset_y = car.rect[1] - back_rect[1]
 
-			#Check for overlap
+			#Check for overlap car/track
 			overlap = back_mask.overlap(car.mask, (offset_x, offset_y))
-			print(car.acceleration)
+
+			#Calculate offset
+			lineOffset_x = car.rect[0] - gate.rect[0]
+			lineOffset_y = car.rect[1] - gate.rect[1]
+
+			#Check for overlap car/gate
+			passedGate = gate.mask.overlap(car.mask, (lineOffset_x, lineOffset_y))
+
 
 			# Drawing
 			self.screen.fill((255, 255, 255))
 			self.screen.blit(tracks_img,(0, 0))
 			self.screen.blit(car.image, car.rect)
+			self.screen.blit(gate.image, gate.rect)
+			
+			if passedGate:
+				if (lastPastedGate >= len(gates) - 1):
+					lastPastedGate = 0
+				else:
+					lastPastedGate += 1
+				gate = Gate(gates[lastPastedGate][0][0], gates[lastPastedGate][0][1], gates[lastPastedGate][1][0])
 
-			for i in range(len(gates)):
-				print(gates[i])
-				pygame.draw.line(self.screen, (255, 0, 0), gates[i][0], gates[i][1])
+
+			# for i in range(len(gates)):
+			# 	pygame.draw.line(self.screen, (255, 0, 0), gates[i][0], gates[i][1])
+
 
 			for point in car.mask.outline(8):
 				pygame.draw.rect(self.screen, (255, 0, 0), (point+Vector2(car.rect.topleft), (2, 2)))
-			
 
-			if overlap:
-				print('salut')
-			if not overlap:
-				print('ok')
+			# if overlap:
+			# 	print('salut')
 			pygame.display.flip()
 
 			self.clock.tick(self.ticks)
