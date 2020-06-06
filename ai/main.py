@@ -65,6 +65,7 @@ class Game:
 		back_mask = pygame.mask.from_surface(tracks_img, 50)
 		back_rect = tracks_img.get_rect()
 		ppu = 10
+		score = 0
 		STAT_FONT = pygame.font.SysFont("comicsans", 50)
 		lastPastedGate = 0
 		gates =  []
@@ -151,22 +152,23 @@ class Game:
 			self.screen.blit(gate.image, gate.rect)
 			
 			if passedGate:
+				score += 1
 				if (lastPastedGate >= len(gates) - 1):
 					lastPastedGate = 0
 				else:
 					lastPastedGate += 1
 				gate = Gate(gates[lastPastedGate][0][0], gates[lastPastedGate][0][1], gates[lastPastedGate][1][0])
 
-
-			# for i in range(len(gates)):
-			# 	pygame.draw.line(self.screen, (255, 0, 0), gates[i][0], gates[i][1])
+			score_label = STAT_FONT.render("Score: " + str(score),1,(255,255,255))
+			self.screen.blit(score_label, (10, 10))
 
 
 			for point in car.mask.outline(8):
 				pygame.draw.rect(self.screen, (255, 0, 0), (point+Vector2(car.rect.topleft), (2, 2)))
 
-			# if overlap:
-			# 	print('salut')
+			if overlap:
+				score_label = STAT_FONT.render("Out of Bound",1,(255,255,255))
+				self.screen.blit(score_label, (10, 60))
 			pygame.display.flip()
 
 			self.clock.tick(self.ticks)
